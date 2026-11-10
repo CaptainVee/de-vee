@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Orders Dashboard | Devee Foods</title>
+  <meta name="robots" content="noindex">
+  <meta name="theme-color" content="#C8202A">
+  <link rel="icon" href="images/logo.svg" type="image/svg+xml">
+  <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Bowlby+One&family=DM+Sans:opsz,wght@9..40,400;9..40,600;9..40,700;9..40,800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+<header class="site-header"><div class="wrap bar">
+  <a class="logo" href="index.html"><img src="images/logo.svg" alt="Devee Foods"></a>
+  <div class="head-actions"><span style="font-weight:800">Orders dashboard</span><button class="btn btn-white btn-sm hidden" id="logout">Log out</button></div>
+</div></header>
+
+<main class="wrap admin-wrap">
+  <form id="login" class="track-card" style="margin-top:20px">
+    <h2 class="display" style="font-size:1.6rem;margin-bottom:6px">Staff login</h2>
+    <p class="muted" style="margin-bottom:16px">Enter the admin key you set in Cloudflare (ADMIN_KEY).</p>
+    <div class="field"><label for="key">Admin key</label><input id="key" type="password" autocomplete="current-password" required></div>
+    <p class="field err" id="loginErr"></p>
+    <button class="btn btn-red btn-block" type="submit">Log in</button>
+  </form>
+
+  <div id="dash" class="hidden">
+    <div class="admin-top">
+      <div class="tabs" id="filters">
+        <button class="active" data-f="active">Active</button><button data-f="all">All</button><button data-f="delivered">Delivered</button><button data-f="cancelled">Cancelled</button>
+      </div>
+      <div style="display:flex;gap:8px;align-items:center"><span class="muted" id="updated"></span><button class="btn btn-red btn-sm" id="refresh">Refresh</button></div>
+    </div>
+    <div class="stats" id="stats"></div>
+    <div class="orders" id="orders"></div>
+  </div>
+</main>
+<div class="toast" id="toast"></div>
+<script type="module" src="js/admin.js"></script>
+</body>
+</html>
