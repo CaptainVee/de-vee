@@ -2,8 +2,8 @@
 
 A food-ordering site that runs entirely on Cloudflare's free plan:
 
-- **Website** (Cloudflare Pages): home, menu with cart, checkout, order tracking, about/contact/FAQ, blog
-- **Order server** (Pages Functions in `functions/`): saves orders and checks prices
+- **Website** (Cloudflare Workers, static assets): home, menu with cart, checkout, order tracking, about/contact/FAQ, blog
+- **Order server** (Worker code in `src/`): saves orders and checks prices
 - **Database** (Cloudflare D1): stores every order
 - **Staff dashboard** at `/admin.html`: see orders and update their status
 - **WhatsApp**: after checkout, the customer sends the order to your WhatsApp in one tap
@@ -20,7 +20,8 @@ public/            ← everything visitors see
   js/app.js        ← site logic (cart, checkout, tracking)
   js/admin.js      ← staff dashboard
   images/          ← logo.svg + food photos
-functions/api/     ← the order server
+src/index.js       ← Worker entry: sends /api/* to the order server, everything else to public/
+src/api/           ← the order server
 schema.sql         ← database table
 wrangler.toml      ← Cloudflare settings
 ```
@@ -48,16 +49,16 @@ All of this is done in the Cloudflare dashboard (dash.cloudflare.com).
 
 **Connect the GitHub repo**
 
-1. Go to **Workers & Pages → Create → Pages → Connect to Git** and pick the `de-vee` repo.
-2. Production branch: `main`. Framework preset: **None**. Build command: leave empty. Build output directory: `public`.
-3. Click **Save and Deploy**.
+1. Open your Worker under **Workers & Pages**, go to **Settings → Build**, and connect the `de-vee` GitHub repo.
+2. Branch: `main`. Build command: leave empty. Deploy command: `npx wrangler deploy`.
+3. Make sure `name` in `wrangler.toml` matches the Worker's name exactly, or the deploy will fail.
 
 **Set the staff dashboard password**
 
-1. In the project, go to **Settings → Variables and Secrets** and add a secret named `ADMIN_KEY` (8+ characters, keep it secret).
-2. Go to **Deployments** and retry the latest deployment so the password takes effect.
+1. In the Worker, go to **Settings → Variables and Secrets** and add a secret named `ADMIN_KEY` (8+ characters, keep it secret).
+2. Push any change (or retry the latest build under **Deployments**) so it takes effect.
 
-The site will be live at `https://devee-foods.pages.dev` (or the name Cloudflare shows). You can add your own domain (e.g. deveefoods.app) under the project's **Custom domains** tab.
+Your own domain (e.g. deveefoods.app) is set under the Worker's **Settings → Domains & Routes**.
 
 ## 3. Updating the site
 
@@ -69,7 +70,7 @@ git commit -m "Describe your change"
 git push
 ```
 
-Cloudflare picks up the push and redeploys within a minute or two. You can watch progress under the project's **Deployments** tab.
+Cloudflare picks up the push and redeploys within a minute or two. You can watch progress under the Worker's **Deployments** tab.
 
 ## Free plan limits (more than enough for a growing food business)
 
