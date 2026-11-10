@@ -8,6 +8,8 @@ A food-ordering site that runs entirely on Cloudflare's free plan:
 - **Staff dashboard** at `/admin.html`: see orders and update their status
 - **WhatsApp**: after checkout, the customer sends the order to your WhatsApp in one tap
 
+The site deploys from GitHub: every time you commit and push, Cloudflare publishes the new version automatically.
+
 ## Folder layout
 
 ```
@@ -17,7 +19,7 @@ public/            ← everything visitors see
   js/data.js       ← EDIT THIS: menu, prices, delivery areas, slots, phone, bank details
   js/app.js        ← site logic (cart, checkout, tracking)
   js/admin.js      ← staff dashboard
-  images/          ← logo.svg + your food photos (foodone.png, foodtwo.png, …)
+  images/          ← logo.svg + food photos
 functions/api/     ← the order server
 schema.sql         ← database table
 wrangler.toml      ← Cloudflare settings
@@ -25,49 +27,49 @@ wrangler.toml      ← Cloudflare settings
 
 ## 1. Before you deploy
 
-1. Copy your food photos into `public/images/` (`foodone.png`, `foodtwo.png`, `foodthree.png`, `foodfour.png`). Add more photos and set `img:` for each dish in `public/js/data.js`.
+1. Put your food photos in `public/images/` and set `img:` for each dish in `public/js/data.js`.
 2. Open `public/js/data.js` and fill in your WhatsApp number, phone, address, bank details, menu, prices and delivery areas.
 
-## 2. Deploy (one time setup, about 10 minutes)
+## 2. One-time setup in Cloudflare
 
-You need Node.js installed. In a terminal inside this folder:
+All of this is done in the Cloudflare dashboard (dash.cloudflare.com).
 
-```bash
-npm install -g wrangler        # Cloudflare's tool
-wrangler login                 # opens the browser to log in
+**Create the database**
 
-# create the database, then copy the database_id it prints into wrangler.toml
-wrangler d1 create devee-foods-db
+1. Go to **Storage & Databases → D1 → Create database**, name it `devee-foods-db`.
+2. Open the database, go to the **Console** tab, paste the contents of `schema.sql` and run it.
+3. Copy the database's **Database ID**, paste it into `wrangler.toml` in place of `PASTE-YOUR-DATABASE-ID-HERE`, then commit and push:
 
-# create the orders table
-wrangler d1 execute devee-foods-db --remote --file=schema.sql
+   ```bash
+   git add wrangler.toml
+   git commit -m "Set D1 database ID"
+   git push
+   ```
 
-# create the site and deploy
-wrangler pages project create devee-foods --production-branch=main
-wrangler pages deploy
+**Connect the GitHub repo**
 
-# set your staff dashboard password (8+ characters, keep it secret)
-wrangler pages secret put ADMIN_KEY
-wrangler pages deploy          # deploy again so the password takes effect
-```
+1. Go to **Workers & Pages → Create → Pages → Connect to Git** and pick the `de-vee` repo.
+2. Production branch: `main`. Framework preset: **None**. Build command: leave empty. Build output directory: `public`.
+3. Click **Save and Deploy**.
 
-The site will be live at `https://devee-foods.pages.dev`. You can add your own domain (e.g. deveefoods.app) under **Workers & Pages → devee-foods → Custom domains**.
+**Set the staff dashboard password**
 
-**Prefer GitHub?** Push this folder to a GitHub repo, then in Cloudflare go to **Workers & Pages → Create → Pages → Connect to Git**. Set the build output directory to `public`. Then under the project's **Settings → Bindings**, add a D1 binding named `DB` and under **Variables and Secrets** add `ADMIN_KEY`. Every push redeploys automatically.
+1. In the project, go to **Settings → Variables and Secrets** and add a secret named `ADMIN_KEY` (8+ characters, keep it secret).
+2. Go to **Deployments** and retry the latest deployment so the password takes effect.
+
+The site will be live at `https://devee-foods.pages.dev` (or the name Cloudflare shows). You can add your own domain (e.g. deveefoods.app) under the project's **Custom domains** tab.
 
 ## 3. Updating the site
 
-Edit files → run `wrangler pages deploy` (or push to GitHub).
-
-## Test locally
+Edit files, then commit and push:
 
 ```bash
-npm install
-wrangler d1 execute devee-foods-db --local --file=schema.sql
-echo "ADMIN_KEY=localtest123" > .dev.vars
-wrangler pages dev
+git add .
+git commit -m "Describe your change"
+git push
 ```
-Open http://localhost:8788
+
+Cloudflare picks up the push and redeploys within a minute or two. You can watch progress under the project's **Deployments** tab.
 
 ## Free plan limits (more than enough for a growing food business)
 
